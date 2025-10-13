@@ -1,14 +1,37 @@
 // src/App.jsx
+
+import { useState } from 'react';
 import SearchBar from './components/SearchBar';
-import './index.css'; // Garantindo que nosso CSS seja importado
+import ProfileCard from './components/ProfileCard'; // Importando nosso novo componente
+import './index.css';
 
 function App() {
-  // 1. Esta função será chamada pelo componente filho (SearchBar)
-  const handleSearch = (username) => {
-    // Por enquanto, vamos apenas mostrar a informação no console
-    console.log('O componente App (pai) recebeu a ordem para buscar por:', username);
-    
-    // NO FUTURO: A chamada à nossa API Python virá aqui!
+  // Criamos os "pedaços de memória" para guardar os dados do usuário e os erros
+  const [userData, setUserData] = useState(null);
+  const [error, setError] = useState(null);
+
+  // Esta é a função principal que chama nossa API Python
+  const handleSearch = async (username) => {
+    setUserData(null); // Limpa os resultados antigos a cada nova busca
+    setError(null);    // Limpa os erros antigos
+
+    try {
+      // Chamamos nossa API Python (que está na porta 8000)
+      const response = await fetch(`http://127.0.0.1:8000/api/v1/search/${username}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Se a API retornar um erro (ex: 404), a mensagem de erro vem em 'data.detail'
+        throw new Error(data.detail || 'Erro ao buscar usuário');
+      }
+      
+      // Se deu tudo certo, guardamos os dados do usuário no state
+      setUserData(data);
+
+    } catch (err) {
+      // Se algo deu errado na busca, guardamos a mensagem de erro no state
+      setError(err.message);
+    }
   };
 
   return (
@@ -17,8 +40,9 @@ function App() {
         <h1>DevFinder Frontend</h1>
       </header>
       <main>
-        {/* 2. Passamos a função 'handleSearch' para o filho através de uma "prop" chamada 'onSearch' */}
         <SearchBar onSearch={handleSearch} />
+        {/* Passamos os dados (ou o erro) para o componente ProfileCard exibir */}
+        <ProfileCard user={userData} error={error} />
       </main>
     </div>
   );

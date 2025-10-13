@@ -102,3 +102,48 @@ header h1 {
     text-align: center; 
     font-weight: bold;
 }
+
+/* Estilos para o Card do Perfil */
+
+.profile-card { 
+    display: flex; 
+    gap: 2rem; 
+    align-items: center; 
+}
+
+.profile-avatar { 
+    width: 150px; 
+    height: 150px; 
+    border-radius: 50%;
+    border: 3px solid var(--accent-color);
+}
+
+.profile-info h2 {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.profile-username a { 
+    color: var(--accent-color); 
+    text-decoration: none; 
+    font-size: 1.2rem;
+}
+
+.profile-bio {
+    margin-top: 1rem;
+    color: var(--secondary-text);
+}
+
+.profile-stats { 
+    display: flex; 
+    gap: 1.5rem; 
+    margin-top: 1rem;
+    color: var(--secondary-text);
+}
+
+.error-message { 
+    color: #ff6b6b; 
+    text-align: center; 
+    font-weight: bold;
+    font-size: 1.2rem;
+}
