@@ -1,27 +1,40 @@
 // src/App.jsx
 
 import { useState } from 'react';
-import SearchBar from './components/SearchBar';
-import ProfileCard from './components/ProfileCard.jsx'; // Importamos com .jsx
+import { motion } from 'framer-motion'; // <-- 1. IMPORTAR O MOTION
+import SearchBar from './components/SearchBar.jsx';
+import ProfileCard from './components/ProfileCard.jsx';
 import './index.css';
 
+// 2. DEFINIR AS VARIANTES (RECEITAS) DE ANIMAÇÃO
+const gridContainerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1 // Anima cada filho com 0.1s de atraso
+    }
+  }
+};
+
+const gridItemVariants = {
+  hidden: { opacity: 0, y: 20 }, // Começa invisível e 20px abaixo
+  show: { opacity: 1, y: 0 }     // Termina visível e na posição original
+};
+
 function App() {
-  // Nossos "pedaços de memória" (States)
-  const [results, setResults] = useState([]);   // <-- MUDANÇA: Agora é uma lista (array)
+  const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  // A URL da nossa API (usando a variável de ambiente que configuramos)
   const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
   const handleSearch = async (username) => {
-    setIsLoading(true); // Começa a carregar
-    setResults([]);     // Limpa os resultados antigos
-    setError(null);     // Limpa os erros antigos
+    setIsLoading(true);
+    setResults([]);
+    setError(null);
 
     try {
-      // MUDANÇA: Chamamos nosso novo endpoint de BUSCA NEURAL
-      // Note que agora usamos um "query parameter" (?q=)
       const response = await fetch(`${apiUrl}/api/v1/neural-search?q=${username}`);
       const data = await response.json();
 
@@ -29,13 +42,12 @@ function App() {
         throw new Error(data.detail || 'Erro ao realizar a busca');
       }
       
-      // MUDANÇA: Guardamos a LISTA de resultados no state
       setResults(data);
 
     } catch (err) {
       setError(err.message);
     } finally {
-      setIsLoading(false); // Termina de carregar, não importa se deu certo ou errado
+      setIsLoading(false);
     }
   };
 
@@ -48,25 +60,30 @@ function App() {
         <SearchBar onSearch={handleSearch} />
 
         <div className="results-container">
-          {/* MUDANÇA: Lógica de renderização */}
           
-          {/* 1. Se estiver carregando... */}
           {isLoading && <p className="loading-message">Buscando na galáxia de talentos...</p>}
           
-          {/* 2. Se tiver um erro... */}
           {error && <p className="error-message">{error}</p>}
           
-          {/* 3. Se não estiver carregando, não tiver erro, e tivermos resultados... */}
+          {/* 3. APLICAR AS ANIMAÇÕES NA GRADE */}
           {!isLoading && !error && results.length > 0 && (
-            <div className="profile-grid">
-              {/* Mapeamos a lista de resultados e criamos um card para CADA um */}
+            <motion.div 
+              className="profile-grid"
+              variants={gridContainerVariants}
+              initial="hidden"
+              animate="show"
+            >
               {results.map((user) => (
-                <ProfileCard key={user.username} user={user} />
+                <motion.div
+                  key={user.username}
+                  variants={gridItemVariants}
+                >
+                  <ProfileCard user={user} />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
 
-          {/* 4. Se não estiver carregando, não tiver erro, e a lista estiver vazia... */}
           {!isLoading && !error && results.length === 0 && (
             <p className="loading-message">Faça uma busca semântica para encontrar desenvolvedores.</p>
           )}
