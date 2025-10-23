@@ -2,35 +2,40 @@
 
 import { useState } from 'react';
 import SearchBar from './components/SearchBar';
-import ProfileCard from './components/ProfileCard'; // Importando nosso novo componente
+import ProfileCard from './components/ProfileCard.jsx'; // Importamos com .jsx
 import './index.css';
 
 function App() {
-  // Criamos os "pedaços de memória" para guardar os dados do usuário e os erros
-  const [userData, setUserData] = useState(null);
+  // Nossos "pedaços de memória" (States)
+  const [results, setResults] = useState([]);   // <-- MUDANÇA: Agora é uma lista (array)
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // A URL da nossa API (usando a variável de ambiente que configuramos)
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
-  // Esta é a função principal que chama nossa API Python
   const handleSearch = async (username) => {
-    setUserData(null); // Limpa os resultados antigos a cada nova busca
-    setError(null);    // Limpa os erros antigos
+    setIsLoading(true); // Começa a carregar
+    setResults([]);     // Limpa os resultados antigos
+    setError(null);     // Limpa os erros antigos
 
     try {
-      // Chamamos nossa API Python (que está na porta 8000)
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/search/${username}`);
+      // MUDANÇA: Chamamos nosso novo endpoint de BUSCA NEURAL
+      // Note que agora usamos um "query parameter" (?q=)
+      const response = await fetch(`${apiUrl}/api/v1/neural-search?q=${username}`);
       const data = await response.json();
 
       if (!response.ok) {
-        // Se a API retornar um erro (ex: 404), a mensagem de erro vem em 'data.detail'
-        throw new Error(data.detail || 'Erro ao buscar usuário');
+        throw new Error(data.detail || 'Erro ao realizar a busca');
       }
       
-      // Se deu tudo certo, guardamos os dados do usuário no state
-      setUserData(data);
+      // MUDANÇA: Guardamos a LISTA de resultados no state
+      setResults(data);
 
     } catch (err) {
-      // Se algo deu errado na busca, guardamos a mensagem de erro no state
       setError(err.message);
+    } finally {
+      setIsLoading(false); // Termina de carregar, não importa se deu certo ou errado
     }
   };
 
@@ -41,8 +46,32 @@ function App() {
       </header>
       <main>
         <SearchBar onSearch={handleSearch} />
-        {/* Passamos os dados (ou o erro) para o componente ProfileCard exibir */}
-        <ProfileCard user={userData} error={error} />
+
+        <div className="results-container">
+          {/* MUDANÇA: Lógica de renderização */}
+          
+          {/* 1. Se estiver carregando... */}
+          {isLoading && <p className="loading-message">Buscando na galáxia de talentos...</p>}
+          
+          {/* 2. Se tiver um erro... */}
+          {error && <p className="error-message">{error}</p>}
+          
+          {/* 3. Se não estiver carregando, não tiver erro, e tivermos resultados... */}
+          {!isLoading && !error && results.length > 0 && (
+            <div className="profile-grid">
+              {/* Mapeamos a lista de resultados e criamos um card para CADA um */}
+              {results.map((user) => (
+                <ProfileCard key={user.username} user={user} />
+              ))}
+            </div>
+          )}
+
+          {/* 4. Se não estiver carregando, não tiver erro, e a lista estiver vazia... */}
+          {!isLoading && !error && results.length === 0 && (
+            <p className="loading-message">Faça uma busca semântica para encontrar desenvolvedores.</p>
+          )}
+
+        </div>
       </main>
     </div>
   );

@@ -147,3 +147,51 @@ header h1 {
     font-weight: bold;
     font-size: 1.2rem;
 }
+
+/* Estilos para a nova lista de resultados e o "TCHAN" */
+
+.results-container {
+  margin-top: 2rem;
+}
+
+/* Este é o nosso layout de galeria (o Masonry simples) */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* O ProfileCard agora é vertical */
+.profile-card {
+  display: flex;
+  flex-direction: column; /* MUDANÇA: Layout vertical */
+  gap: 1rem; /* Espaço entre os elementos internos */
+  align-items: center; /* Centraliza a imagem e o texto */
+  text-align: center;
+  transition: all 0.3s ease; /* Animação suave */
+}
+
+.profile-card:hover {
+  transform: translateY(-5px); /* Efeito de "flutuar" */
+  box-shadow: 0 4px 20px rgba(0, 123, 255, 0.2);
+}
+
+.profile-avatar {
+  width: 120px; /* Um pouco menor para caber no grid */
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--accent-color);
+}
+
+.profile-score {
+  font-size: 1.1rem;
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+.loading-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--secondary-text);
+  padding: 2rem;
+}
