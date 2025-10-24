@@ -155,3 +155,49 @@ header h1 {
   color: var(--secondary-text);
   padding: 2rem;
 }
+
+/* Estilos para o Seletor de Modo */
+.search-mode-selector {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+  color: var(--secondary-text);
+}
+
+.search-mode-selector label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Estilos para a lista de repositórios (opcional) */
+.profile-repos {
+  margin-top: 1rem;
+  text-align: left;
+  width: 100%;
+}
+
+.profile-repos h4 {
+  color: var(--primary-text);
+  margin-bottom: 0.5rem;
+}
+
+.profile-repos ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.profile-repos li {
+  margin-bottom: 0.3rem;
+}
+
+.profile-repos a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+.profile-repos span {
+  font-size: 0.9em;
+  color: var(--secondary-text);
+}
