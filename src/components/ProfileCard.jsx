@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 
-function ProfileCard({ user, isDirectSearch }) {
+function ProfileCard({ user, isDirectSearch, headingId }) {
   const cardRef = useRef(null);
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [glarePosition, setGlarePosition] = useState({ x: 50, y: 50 });
@@ -61,9 +61,9 @@ function ProfileCard({ user, isDirectSearch }) {
         </div>
         <div className="profile-info">
           <div className="card-title-wrapper">
-            <h2>{name}</h2>
+            <h2 id={headingId}>{name}</h2>
             <p className="profile-username">
-              <a href={htmlUrl} target="_blank" rel="noopener noreferrer">
+              <a href={htmlUrl} target="_blank" rel="noopener noreferrer" aria-label={`Perfil de ${username} no GitHub`}>
                 @{username}
               </a>
             </p>

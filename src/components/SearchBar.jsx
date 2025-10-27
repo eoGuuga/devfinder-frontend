@@ -1,21 +1,23 @@
-// src/components/SearchBar.jsx (Com Seletor de Modo)
-
 import { useState } from 'react';
 
-// 1. O componente agora recebe MAIS props: o modo atual e a função para mudá-lo
 function SearchBar({ onSearch, currentMode, onModeChange }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    onSearch(searchTerm, currentMode); // 2. Enviamos o modo junto com o termo
+    onSearch(searchTerm, currentMode);
   };
 
   return (
-    <section id="search">
+    <section id="search" aria-labelledby="search-heading">
+      <h2 id="search-heading" className="sr-only">Controle de Busca</h2>
       <form onSubmit={handleSubmit} className="search-form">
+        <label htmlFor="searchInput" className="sr-only">
+          {currentMode === 'neural' ? 'Descreva o perfil desejado' : 'Digite o username exato do GitHub'}
+        </label>
         <input
           type="text"
+          id="searchInput"
           placeholder={currentMode === 'neural' ? 'Descreva o perfil (ex: dev python SP com IA)...' : 'Digite o username exato do GitHub...'}
           required
           value={searchTerm}
@@ -24,11 +26,12 @@ function SearchBar({ onSearch, currentMode, onModeChange }) {
         />
         <button type="submit" className="search-button">Buscar</button>
       </form>
-      
-      {/* 3. Adicionamos os botões de rádio para selecionar o modo */}
-      <div className="search-mode-selector">
+
+      <fieldset className="search-mode-selector" role="radiogroup" aria-labelledby="search-mode-legend">
+         <legend id="search-mode-legend" className="sr-only">Selecione o modo de busca</legend>
         <label>
           <input
+            id="neuralMode"
             type="radio"
             name="searchMode"
             value="neural"
@@ -39,6 +42,7 @@ function SearchBar({ onSearch, currentMode, onModeChange }) {
         </label>
         <label>
           <input
+            id="directMode"
             type="radio"
             name="searchMode"
             value="direct"
@@ -47,7 +51,7 @@ function SearchBar({ onSearch, currentMode, onModeChange }) {
           />
           Busca por Username
         </label>
-      </div>
+      </fieldset>
     </section>
   );
 }
