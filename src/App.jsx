@@ -4,50 +4,32 @@ import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadLinksPreset } from "@tsparticles/preset-links";
 import SearchBar from './components/SearchBar.jsx';
 import ProfileCard from './components/ProfileCard.jsx';
-import SkeletonCard from './components/SkeletonCard.jsx'; // <-- Importa o Skeleton
+import SkeletonCard from './components/SkeletonCard.jsx';
 import './index.css';
 
-const gridContainerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2
-    }
-  }
-};
+const gridContainerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } } };
+const gridItemVariants = { hidden: { opacity: 0, y: 50, scale: 0.8 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 100 } } };
 
-const gridItemVariants = {
-  hidden: { opacity: 0, y: 50, scale: 0.8 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { type: "spring", stiffness: 100 }
-  }
-};
+const MIN_RELEVANCE_SCORE = 0.1; // <-- NOSSO LIMIAR DE RELEVÂNCIA
 
 function App() {
-  const [results, setResults] = useState([]);
+  const [allResults, setAllResults] = useState([]); // Guarda TODOS os resultados da API
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchMode, setSearchMode] = useState('neural');
   const [particlesLoaded, setParticlesLoaded] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
   useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadLinksPreset(engine);
-    }).then(() => {
-      setParticlesLoaded(true);
-    });
+    initParticlesEngine(async (engine) => { await loadLinksPreset(engine); }).then(() => { setParticlesLoaded(true); });
   }, []);
 
   const handleSearch = async (query, mode) => {
+    setHasSearched(false);
     setIsLoading(true);
-    setResults([]);
+    setAllResults([]); // Limpa resultados brutos
     setError(null);
     let url = '';
     let isListResult = false;
@@ -62,33 +44,37 @@ function App() {
 
     try {
       console.log(`Buscando em: ${url} (Modo: ${mode})`);
-      // Simula um pequeno delay para ver o skeleton (remova em produção)
-      // await new Promise(resolve => setTimeout(resolve, 1500)); 
       const response = await fetch(url);
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.detail || `Erro ao buscar (Modo: ${mode})`);
-      }
+      if (!response.ok) { throw new Error(data.detail || `Erro ao buscar (Modo: ${mode})`); }
+
       if (isListResult) {
-        setResults(data);
+        setAllResults(data); // Guarda todos os resultados, mesmo os de score baixo
       } else {
-        setResults([data]);
+        setAllResults([data]); // Guarda o resultado único como lista
       }
     } catch (err) {
       setError(err.message);
-      setResults([]);
+      setAllResults([]);
     } finally {
       setIsLoading(false);
+      setHasSearched(true);
     }
   };
 
   const handleModeChange = (newMode) => {
     setSearchMode(newMode);
-    setResults([]);
+    setAllResults([]);
     setError(null);
+    setHasSearched(false);
   };
 
   const particlesOptions = { /* ... (código igual ao anterior) ... */ };
+
+  // FILTRAGEM DOS RESULTADOS BASEADO NO SCORE (APENAS PARA MODO NEURAL)
+  const relevantResults = searchMode === 'neural'
+    ? allResults.filter(user => user.score >= MIN_RELEVANCE_SCORE)
+    : allResults;
 
   if (!particlesLoaded) {
     return <div style={{ background: 'var(--bg-color)', height: '100vh' }} />;
@@ -96,69 +82,41 @@ function App() {
 
   return (
     <>
-      <Particles
-        id="tsparticles"
-        options={particlesOptions}
-        style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}
-      />
+      <Particles id="tsparticles" options={particlesOptions} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }} />
       <div className="container">
-        <header>
-          <h1>DevFinder Frontend</h1>
-        </header>
+        <header><h1>DevFinder Frontend</h1></header>
         <main>
-          <SearchBar
-            onSearch={handleSearch}
-            currentMode={searchMode}
-            onModeChange={handleModeChange}
-          />
-
-          <motion.div
-            className="results-container"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            {/* --- LÓGICA DE RENDERIZAÇÃO ATUALIZADA --- */}
-
-            {/* 1. Se estiver carregando, mostra SKELETONS */}
+          <SearchBar onSearch={handleSearch} currentMode={searchMode} onModeChange={handleModeChange} />
+          <motion.div className="results-container" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
             {isLoading && (
               <div className="profile-grid">
-                {/* Renderiza vários skeletons (ex: 3) */}
-                {[...Array(3)].map((_, index) => (
-                   <SkeletonCard key={index} />
-                ))}
+                {[...Array(3)].map((_, index) => (<SkeletonCard key={index} />))}
               </div>
             )}
-
-            {/* 2. Se tiver um erro (e não estiver carregando)... */}
             {!isLoading && error && <p className="error-message">{error}</p>}
 
-            {/* 3. Se não estiver carregando, não tiver erro, e tivermos resultados... */}
-            {!isLoading && !error && results.length > 0 && (
-              <motion.div
-                className="profile-grid"
-                variants={gridContainerVariants}
-                initial="hidden"
-                animate="show"
-              >
-                {results.map((user) => (
-                  <motion.div
-                    key={user.username || user.login}
-                    variants={gridItemVariants}
-                  >
+            {/* Renderiza a grade APENAS se houver resultados RELEVANTES */}
+            {!isLoading && !error && relevantResults.length > 0 && (
+              <motion.div className="profile-grid" variants={gridContainerVariants} initial="hidden" animate="show">
+                {relevantResults.map((user) => (
+                  <motion.div key={user.username || user.login} variants={gridItemVariants}>
                     <ProfileCard user={user} isDirectSearch={searchMode === 'direct'} />
                   </motion.div>
                 ))}
               </motion.div>
             )}
 
-            {/* 4. Se não estiver carregando, não tiver erro, e a lista estiver vazia... */}
-            {!isLoading && !error && results.length === 0 && (
+            {/* Mostra "Nenhum resultado" SE busca foi feita E a lista de RELEVANTES está vazia */}
+            {!isLoading && !error && hasSearched && relevantResults.length === 0 && (
+               <p className="loading-message">Nenhum perfil relevante encontrado para sua busca.</p>
+            )}
+
+            {/* Mostra mensagem inicial SE NENHUMA busca foi feita ainda */}
+            {!isLoading && !error && !hasSearched && (
               <p className="loading-message">
                 {searchMode === 'neural' ? 'Descreva o perfil desejado...' : 'Digite o username exato...'}
               </p>
             )}
-            {/* --- FIM DA LÓGICA DE RENDERIZAÇÃO --- */}
           </motion.div>
         </main>
       </div>
