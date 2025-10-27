@@ -1,63 +1,99 @@
-// src/components/ProfileCard.jsx (Versão Híbrida)
-
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 
-// Recebe a nova prop 'isDirectSearch'
 function ProfileCard({ user, isDirectSearch }) {
-  
-  // Calcula o score apenas se não for busca direta e se o score existir
+  const cardRef = useRef(null);
+  const [rotate, setRotate] = useState({ x: 0, y: 0 });
+  const [glarePosition, setGlarePosition] = useState({ x: 50, y: 50 });
+  const [glareOpacity, setGlareOpacity] = useState(0);
+
   const relevanceScore = !isDirectSearch && user.score ? (user.score * 100).toFixed(1) : null;
-  
-  // Pega o login/username corretamente (API direta usa 'login', Pinecone usa 'username')
   const username = user.username || user.login;
-  const name = user.name || username; // Usa login se nome não existir
+  const name = user.name || username;
   const bio = user.bio || 'Este usuário não possui uma bio.';
   const avatarUrl = user.avatar_url;
   const htmlUrl = user.html_url;
 
+  const handleMouseMove = (event) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const width = rect.width;
+    const height = rect.height;
+    const rotateY = (x - width / 2) / width * 30; // Increased rotation
+    const rotateX = (height / 2 - y) / height * 30; // Increased rotation
+    setRotate({ x: rotateX, y: rotateY });
+    const glareX = (x / width) * 100;
+    const glareY = (y / height) * 100;
+    setGlarePosition({ x: glareX, y: glareY });
+    setGlareOpacity(1);
+  };
+
+  const handleMouseLeave = () => {
+    setRotate({ x: 0, y: 0 });
+    setGlareOpacity(0);
+  };
+
   return (
     <motion.div
-      className="profile-card"
-      // Estilo dinâmico só se aplica à busca neural
-      style={!isDirectSearch ? {
-        opacity: 0.5 + (user.score * 0.5),
-        border: `2px solid rgba(0, 123, 255, ${0.1 + user.score})`
-      } : {}} // Nenhum estilo dinâmico para busca direta
-      whileHover={{ y: -5, scale: 1.03 }}
+      ref={cardRef}
+      className="profile-card profile-card-3d"
+      style={{
+        opacity: !isDirectSearch ? 0.5 + (user.score * 0.5) : 1,
+      }}
+      animate={{ rotateX: rotate.x, rotateY: rotate.y }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }} // Adjusted spring
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
     >
-      <img src={avatarUrl} alt={`Avatar de ${name}`} className="profile-avatar" />
-      
-      <div className="profile-info">
-        <h2>{name}</h2>
-        <p className="profile-username">
-          <a href={htmlUrl} target="_blank" rel="noopener noreferrer">
-            @{username}
-          </a>
-        </p>
-        
-        {/* Mostra o score apenas na busca neural */}
-        {relevanceScore !== null && (
-          <p className="profile-score">
-            Relevância: <strong>{relevanceScore}%</strong>
-          </p>
-        )}
-
-        <p className="profile-bio">{bio}</p>
-
-        {/* BÔNUS: Mostra repositórios se for busca direta e eles existirem */}
-        {isDirectSearch && user.repositories && user.repositories.length > 0 && (
-          <div className="profile-repos">
-            <h4>Repositórios Recentes:</h4>
-            <ul>
-              {user.repositories.map(repo => (
-                <li key={repo.id}>
-                  <a href={repo.html_url} target="_blank" rel="noopener noreferrer">{repo.name}</a>
-                  {repo.language && <span> ({repo.language})</span>}
-                </li>
-              ))}
-            </ul>
+      <div
+        className="card-glare"
+        style={{
+          background: `radial-gradient(circle at ${glarePosition.x}% ${glarePosition.y}%, rgba(255, 255, 255, 0.4), transparent 50%)`, // Adjusted gradient
+          opacity: glareOpacity,
+          transition: 'opacity 0.1s linear'
+        }}
+      />
+      <div className="card-content">
+        <div className="card-avatar-wrapper">
+          <img
+            src={avatarUrl}
+            alt={`Avatar de ${name}`}
+            className="profile-avatar"
+          />
+        </div>
+        <div className="profile-info">
+          <div className="card-title-wrapper">
+            <h2>{name}</h2>
+            <p className="profile-username">
+              <a href={htmlUrl} target="_blank" rel="noopener noreferrer">
+                @{username}
+              </a>
+            </p>
           </div>
-        )}
+          {relevanceScore !== null && (
+            <p className="profile-score">
+              Relevância: <strong>{relevanceScore}%</strong>
+            </p>
+          )}
+          <div className="card-bio-wrapper">
+            <p className="profile-bio">{bio}</p>
+          </div>
+          {isDirectSearch && user.repositories && user.repositories.length > 0 && (
+            <div className="profile-repos card-repos-wrapper">
+              <h4>Repositórios Recentes:</h4>
+              <ul>
+                {user.repositories.map(repo => (
+                  <li key={repo.id}>
+                    <a href={repo.html_url} target="_blank" rel="noopener noreferrer">{repo.name}</a>
+                    {repo.language && <span> ({repo.language})</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );
