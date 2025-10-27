@@ -18,13 +18,15 @@ body {
   background-color: var(--bg-color);
   color: var(--primary-text);
   line-height: 1.6;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-x: hidden;
 }
 
 .container {
   max-width: 900px;
   margin: 0 auto;
   padding: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 header {
@@ -97,7 +99,7 @@ header h1 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
-  perspective: 1500px; /* Increased perspective */
+  perspective: 1500px;
 }
 
 .profile-card-3d {
@@ -115,12 +117,14 @@ header h1 {
   text-align: center;
   gap: 1rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  transition: box-shadow 0.4s ease-out;
-  will-change: transform; /* Hint for performance */
+  transition: box-shadow 0.4s ease-out; /* Removida transição do filtro */
+  will-change: transform;
+  cursor: pointer;
 }
 
 .profile-card-3d:hover {
   box-shadow: 0 20px 50px rgba(0, 123, 255, 0.4);
+  /* Linha do filtro REMOVIDA daqui */
 }
 
 .card-glare {
@@ -132,6 +136,9 @@ header h1 {
   border-radius: 15px;
   pointer-events: none;
   z-index: 5;
+  background: radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255, 255, 255, 0.3), transparent 50%);
+  opacity: var(--glare-opacity, 0);
+  transition: opacity 0.1s linear;
 }
 
 .card-content {
@@ -144,20 +151,20 @@ header h1 {
 }
 
 .card-avatar-wrapper {
-  transform: translateZ(80px); /* Increased parallax */
+  transform: translateZ(80px);
   will-change: transform;
   z-index: 2;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .card-title-wrapper {
-  transform: translateZ(60px); /* Increased parallax */
+  transform: translateZ(60px);
   will-change: transform;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .profile-score {
-  transform: translateZ(70px); /* Increased parallax */
+  transform: translateZ(70px);
   will-change: transform;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   font-size: 1.1rem;
@@ -167,13 +174,13 @@ header h1 {
 }
 
 .card-bio-wrapper {
-  transform: translateZ(40px); /* Increased parallax */
+  transform: translateZ(40px);
   will-change: transform;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .card-repos-wrapper {
-  transform: translateZ(30px); /* Increased parallax */
+  transform: translateZ(30px);
   will-change: transform;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }

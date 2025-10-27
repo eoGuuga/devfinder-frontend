@@ -21,8 +21,8 @@ function ProfileCard({ user, isDirectSearch }) {
     const y = event.clientY - rect.top;
     const width = rect.width;
     const height = rect.height;
-    const rotateY = (x - width / 2) / width * 30; // Increased rotation
-    const rotateX = (height / 2 - y) / height * 30; // Increased rotation
+    const rotateY = (x - width / 2) / width * 30;
+    const rotateX = (height / 2 - y) / height * 30;
     setRotate({ x: rotateX, y: rotateY });
     const glareX = (x / width) * 100;
     const glareY = (y / height) * 100;
@@ -41,20 +41,16 @@ function ProfileCard({ user, isDirectSearch }) {
       className="profile-card profile-card-3d"
       style={{
         opacity: !isDirectSearch ? 0.5 + (user.score * 0.5) : 1,
+        '--glare-x': `${glarePosition.x}%`,
+        '--glare-y': `${glarePosition.y}%`,
+        '--glare-opacity': glareOpacity
       }}
       animate={{ rotateX: rotate.x, rotateY: rotate.y }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }} // Adjusted spring
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      <div
-        className="card-glare"
-        style={{
-          background: `radial-gradient(circle at ${glarePosition.x}% ${glarePosition.y}%, rgba(255, 255, 255, 0.4), transparent 50%)`, // Adjusted gradient
-          opacity: glareOpacity,
-          transition: 'opacity 0.1s linear'
-        }}
-      />
+      <div className="card-glare" />
       <div className="card-content">
         <div className="card-avatar-wrapper">
           <img

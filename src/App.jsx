@@ -1,13 +1,32 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Particles, { initParticlesEngine } from "@tsparticles/react";
-import { loadLinksPreset } from "@tsparticles/preset-links"; // Importa o preset
+import { loadLinksPreset } from "@tsparticles/preset-links";
 import SearchBar from './components/SearchBar.jsx';
 import ProfileCard from './components/ProfileCard.jsx';
+import SkeletonCard from './components/SkeletonCard.jsx'; // <-- Importa o Skeleton
 import './index.css';
 
-const gridContainerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-const gridItemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
+const gridContainerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const gridItemVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: "spring", stiffness: 100 }
+  }
+};
 
 function App() {
   const [results, setResults] = useState([]);
@@ -43,6 +62,8 @@ function App() {
 
     try {
       console.log(`Buscando em: ${url} (Modo: ${mode})`);
+      // Simula um pequeno delay para ver o skeleton (remova em produção)
+      // await new Promise(resolve => setTimeout(resolve, 1500)); 
       const response = await fetch(url);
       const data = await response.json();
       if (!response.ok) {
@@ -67,67 +88,10 @@ function App() {
     setError(null);
   };
 
-  const particlesOptions = {
-    preset: "links",
-    background: {
-      color: {
-        value: 'var(--bg-color)', // Usa nossa cor de fundo do CSS
-      },
-    },
-    particles: {
-      color: {
-        value: "#ffffff", // Cor das partículas
-      },
-      links: {
-        color: "#ffffff", // Cor das linhas
-        distance: 150,
-        enable: true,
-        opacity: 0.2, // Linhas bem sutis
-        width: 1,
-      },
-      move: {
-        enable: true,
-        speed: 1, // Movimento lento
-      },
-      number: {
-        density: {
-          enable: true,
-          area: 800,
-        },
-        value: 50, // Menos partículas
-      },
-      opacity: {
-        value: 0.3, // Partículas sutis
-      },
-      shape: {
-        type: "circle",
-      },
-      size: {
-        value: { min: 1, max: 3 }, // Tamanho pequeno
-      },
-    },
-    interactivity: {
-      events: {
-        onHover: {
-          enable: true,
-          mode: "repulse", // Afasta as partículas ao passar o mouse
-        },
-        onClick: {
-            enable: false, // Desabilita interação no clique
-        }
-      },
-      modes: {
-        repulse: {
-          distance: 100, // Distância da repulsão
-          duration: 0.4,
-        },
-      },
-    },
-    detectRetina: true,
-  };
+  const particlesOptions = { /* ... (código igual ao anterior) ... */ };
 
   if (!particlesLoaded) {
-    return <div style={{ background: 'var(--bg-color)', height: '100vh' }} />; // Tela de carregamento simples
+    return <div style={{ background: 'var(--bg-color)', height: '100vh' }} />;
   }
 
   return (
@@ -135,14 +99,7 @@ function App() {
       <Particles
         id="tsparticles"
         options={particlesOptions}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: -1 // Garante que fique atrás de todo o conteúdo
-        }}
+        style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}
       />
       <div className="container">
         <header>
@@ -155,10 +112,28 @@ function App() {
             onModeChange={handleModeChange}
           />
 
-          <div className="results-container">
-            {isLoading && <p className="loading-message">Buscando...</p>}
-            {error && <p className="error-message">{error}</p>}
-            
+          <motion.div
+            className="results-container"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* --- LÓGICA DE RENDERIZAÇÃO ATUALIZADA --- */}
+
+            {/* 1. Se estiver carregando, mostra SKELETONS */}
+            {isLoading && (
+              <div className="profile-grid">
+                {/* Renderiza vários skeletons (ex: 3) */}
+                {[...Array(3)].map((_, index) => (
+                   <SkeletonCard key={index} />
+                ))}
+              </div>
+            )}
+
+            {/* 2. Se tiver um erro (e não estiver carregando)... */}
+            {!isLoading && error && <p className="error-message">{error}</p>}
+
+            {/* 3. Se não estiver carregando, não tiver erro, e tivermos resultados... */}
             {!isLoading && !error && results.length > 0 && (
               <motion.div
                 className="profile-grid"
@@ -177,12 +152,14 @@ function App() {
               </motion.div>
             )}
 
+            {/* 4. Se não estiver carregando, não tiver erro, e a lista estiver vazia... */}
             {!isLoading && !error && results.length === 0 && (
               <p className="loading-message">
                 {searchMode === 'neural' ? 'Descreva o perfil desejado...' : 'Digite o username exato...'}
               </p>
             )}
-          </div>
+            {/* --- FIM DA LÓGICA DE RENDERIZAÇÃO --- */}
+          </motion.div>
         </main>
       </div>
     </>
@@ -190,3 +167,5 @@ function App() {
 }
 
 export default App;
+
+const particlesOptions = { preset: "links", background: { color: { value: 'var(--bg-color)' } }, particles: { color: { value: "#ffffff" }, links: { color: "#ffffff", distance: 150, enable: true, opacity: 0.2, width: 1 }, move: { enable: true, speed: 1 }, number: { density: { enable: true, area: 800 }, value: 50 }, opacity: { value: 0.3 }, shape: { type: "circle" }, size: { value: { min: 1, max: 3 } }, }, interactivity: { events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: false } }, modes: { repulse: { distance: 100, duration: 0.4 } }, }, detectRetina: true, };
