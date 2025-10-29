@@ -1,38 +1,50 @@
 # DevFinder Pro Frontend 🚀
 
-User interface (Frontend) for the DevFinder Pro application, built with React, Vite, and Framer Motion. Consumes the neural search API to find GitHub developer profiles.
+Modern and interactive user interface for DevFinder Pro, built with React, Vite, and Framer Motion. Consumes the DevFinder Pro API to enable semantic and direct search for GitHub developer profiles.
 
 **[➡️ Live Demo!](https://devfinder-3w8r.onrender.com)** | **[➡️ Backend API (Hugging Face)](https://eoGuuga-devfinder-api.hf.space)**
 
 ## 📖 About
 
-This is a Single-Page Application (SPA) serving as the face of DevFinder Pro. It allows users to enter a natural language query (e.g., "python developer with machine learning experience") and displays a dynamic gallery of GitHub developer profiles that semantically match the search.
+This Single-Page Application (SPA) serves as the primary interface for interacting with the DevFinder Pro system. It offers two distinct search modes:
 
-The application consumes the [DevFinder Pro API](https://eoGuuga-devfinder-api.hf.space) (hosted separately) to retrieve the AI-ranked results.
+1.  **Semantic Search (AI):** Allows users to input natural language queries (e.g., "python developer interested in IoT projects in Brazil") to discover relevant GitHub profiles based on semantic similarity, powered by the backend API's AI model and Pinecone index.
+2.  **Username Search:** Enables users to directly look up a specific GitHub profile by entering the exact username, fetching data in real-time from the backend API (which calls the GitHub API).
+
+The interface is designed to be visually engaging and informative, featuring dynamic layouts, subtle animations, and clear presentation of search results.
 
 ---
 
 ## ✨ Features (The "TCHAN")
 
-- **Semantic Search:** Find developers based on descriptions of skills and projects, not just names.
-- **Dynamic Gallery:** Displays results in a responsive grid layout.
-- **Relevance Visualization:** The style (opacity, border) of each profile card reflects the AI similarity score, highlighting the most relevant results.
-- **Fluid Animations:** Uses `Framer Motion` for smooth cascading entry animations and subtle hover effects, providing a polished user experience.
-- **Loading & Error States:** Provides clear visual feedback during searches and in case of failures.
-- **Responsive Design:** Interface adapts gracefully to different screen sizes.
+- **Hybrid Search Interface:** Clear toggle between Semantic (AI) and Direct Username search modes.
+- **Semantic Search Results:** Displays AI-ranked profiles based on query relevance.
+- **Direct Profile Lookup:** Fetches and displays detailed profile information, including recent repositories.
+- **Dynamic Gallery Layout:** Renders results in a responsive grid.
+- **Relevance Visualization (Semantic Search):** Card styling (e.g., opacity) subtly reflects the AI similarity score.
+- **Interactive 3D Cards:** Profile cards tilt and react to mouse movement with parallax effects and dynamic glare.
+- **Fluid Animations:** Smooth entry animations for results (using `Framer Motion`) and polished hover effects.
+- **Skeleton Loaders:** Provides a professional loading state experience.
+- **Light/Dark Theme:** User-selectable light and dark modes with persistent preference.
+- **Accessible Design (A11y):** Implemented semantic HTML, ARIA attributes, and keyboard navigation support.
+- **Responsive Design:** Adapts gracefully to various screen sizes.
+- **Animated Background:** Subtle particle animations using `react-tsparticles` enhance the visual appeal.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **React:** JavaScript library for building the component-based user interface.
-- **Vite:** Modern and fast build tool for the development environment.
-- **JavaScript (ES6+):** Core language of the application.
-- **CSS3:** Styling with CSS variables, Grid/Flexbox layout.
-- **Framer Motion:** Library for complex and performant animations in React.
-- **Fetch API:** For making asynchronous calls to the backend API.
+- **React:** JavaScript library for building the component-based UI.
+- **Vite:** Modern frontend build tool.
+- **JavaScript (ES6+):** Core application language.
+- **CSS3:** Styling with CSS variables (for themes), Grid/Flexbox, and custom animations/effects.
+- **Framer Motion:** Library for declarative animations in React.
+- **React Icons:** For scalable vector icons.
+- **react-tsparticles:** For the animated particle background.
+- **Fetch API:** For asynchronous calls to the backend API.
 - **Render (Static Site):** Hosting platform for the static frontend application.
-- **Environment Variables (`.env`):** For configuring the backend API URL.
+- **Environment Variables (`.env`):** Configuration for the backend API URL (`VITE_API_URL`).
+- **Context API (React):** For global theme state management.
 
 ---
 
@@ -49,10 +61,10 @@ The application consumes the [DevFinder Pro API](https://eoGuuga-devfinder-api.h
     ```
 3.  **Configure Environment Variable:**
     * Create a `.env` file in the project root.
-    * Add the URL of your backend API (local or deployed):
+    * Add the URL of your running backend API (local or deployed):
       ```
       VITE_API_URL=[http://127.0.0.1:8000](http://127.0.0.1:8000) 
-      # Or use [https://eoGuuga-devfinder-api.hf.space](https://eoGuuga-devfinder-api.hf.space) to test with the live API
+      # Or use [https://eoGuuga-devfinder-api.hf.space](https://eoGuuga-devfinder-api.hf.space) if testing against the live API
       ```
 4.  **Start the development server:**
     ```bash
@@ -60,13 +72,13 @@ The application consumes the [DevFinder Pro API](https://eoGuuga-devfinder-api.h
     ```
 5.  The application will be available at `http://localhost:5173` (or another port indicated by Vite).
 
-**Prerequisite:** For the search to work, the DevFinder Pro backend API must be running (locally or online) and accessible at the URL configured in the `.env` file.
+**Prerequisite:** The DevFinder Pro backend API must be running and accessible at the URL configured in the `.env` file for searches to work.
 
 ---
 
 ## 👨‍💻 Author
 
-Made with ❤️ by **Gustavo Henrick**.
+Developed with 🐍 by **Gustavo Henrick**.
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/gustavo-henrick-dev20/)
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/eoGuuga)

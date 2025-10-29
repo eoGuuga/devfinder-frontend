@@ -5,7 +5,9 @@ function SearchBar({ onSearch, currentMode, onModeChange }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    onSearch(searchTerm, currentMode);
+    if (searchTerm.trim()) { // Evita busca vazia (além do required)
+        onSearch(searchTerm.trim(), currentMode);
+    }
   };
 
   return (
@@ -27,31 +29,28 @@ function SearchBar({ onSearch, currentMode, onModeChange }) {
         <button type="submit" className="search-button">Buscar</button>
       </form>
 
-      <fieldset className="search-mode-selector" role="radiogroup" aria-labelledby="search-mode-legend">
-         <legend id="search-mode-legend" className="sr-only">Selecione o modo de busca</legend>
-        <label>
-          <input
-            id="neuralMode"
-            type="radio"
-            name="searchMode"
-            value="neural"
-            checked={currentMode === 'neural'}
-            onChange={() => onModeChange('neural')}
-          />
+      {/* --- NOVO CONTROLE SEGMENTADO --- */}
+      <div className="segmented-control" role="group" aria-label="Modo de busca">
+        <button
+           type="button"
+           role="radio"
+           aria-checked={currentMode === 'neural'}
+           className={`segment-button ${currentMode === 'neural' ? 'active' : ''}`}
+           onClick={() => onModeChange('neural')}
+        >
           Busca Semântica (IA)
-        </label>
-        <label>
-          <input
-            id="directMode"
-            type="radio"
-            name="searchMode"
-            value="direct"
-            checked={currentMode === 'direct'}
-            onChange={() => onModeChange('direct')}
-          />
+        </button>
+        <button
+           type="button"
+           role="radio"
+           aria-checked={currentMode === 'direct'}
+           className={`segment-button ${currentMode === 'direct' ? 'active' : ''}`}
+           onClick={() => onModeChange('direct')}
+        >
           Busca por Username
-        </label>
-      </fieldset>
+        </button>
+      </div>
+      {/* --- FIM DO CONTROLE SEGMENTADO --- */}
     </section>
   );
 }

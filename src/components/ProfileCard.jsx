@@ -40,7 +40,6 @@ function ProfileCard({ user, isDirectSearch, headingId }) {
       ref={cardRef}
       className="profile-card profile-card-3d"
       style={{
-        opacity: !isDirectSearch ? 0.5 + (user.score * 0.5) : 1,
         '--glare-x': `${glarePosition.x}%`,
         '--glare-y': `${glarePosition.y}%`,
         '--glare-opacity': glareOpacity

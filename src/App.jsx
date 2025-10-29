@@ -7,6 +7,7 @@ import ProfileCard from './components/ProfileCard.jsx';
 import SkeletonCard from './components/SkeletonCard.jsx';
 import ThemeToggle from './components/ThemeToggle.jsx';
 import { useTheme } from './context/ThemeContext.jsx';
+import { FaStar } from 'react-icons/fa'; // <<<--- IMPORTANDO ÍCONE
 import './index.css';
 
 const gridContainerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } } };
@@ -27,7 +28,6 @@ function App() {
     initParticlesEngine(async (engine) => { await loadLinksPreset(engine); }).then(() => { setParticlesLoaded(true); });
   }, []);
 
-  // <<<--- FUNÇÕES CORRIGIDAS, DENTRO DO COMPONENTE --->>>
   const handleSearch = async (query, mode) => {
     setHasSearched(false);
     setIsLoading(true);
@@ -69,7 +69,6 @@ function App() {
     setError(null);
     setHasSearched(false);
   };
-  // <<<--- FIM DAS FUNÇÕES CORRIGIDAS --->>>
 
   const particlesOptions = {
     preset: "links",
@@ -110,7 +109,10 @@ function App() {
       )}
       <ThemeToggle />
       <div className="container">
-        <header><h1>DevFinder Frontend</h1></header>
+        <header>
+            {/* <<<--- TÍTULO ALTERADO E ÍCONE ADICIONADO --->>> */}
+            <h1><FaStar style={{ verticalAlign: 'middle', marginRight: '10px' }} />DevFinder</h1>
+        </header>
         <main>
           <SearchBar onSearch={handleSearch} currentMode={searchMode} onModeChange={handleModeChange} />
           <motion.div className="results-container" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} aria-live="polite">
